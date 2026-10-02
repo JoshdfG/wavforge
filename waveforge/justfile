@@ -1,0 +1,79 @@
+set dotenv-load := true   # loads .env so $POSTGRES_USER etc. work in recipes
+
+default:
+    @just --list
+
+# ---------- formatting ----------
+fmt:
+    cargo +nightly fmt --all
+
+fmt-check:
+    cargo +nightly fmt --all -- --check
+
+# ---------- local dev (cargo on host, Postgres in docker) ----------
+check-env:
+    @test -f .env || { echo "Error: .env not found. Copy .env.example to .env"; exit 1; }
+
+db-up: check-env
+    docker compose up -d --wait postgres
+
+# needs: cargo install cargo-watch
+watch: db-up
+    cargo watch -x run
+
+run: db-up
+    cargo run
+
+# ---------- tests ----------
+# unit tests only, no database needed
+test:
+    cargo test --lib
+
+# unit + API tests (starts Postgres first)
+test-all: db-up
+    cargo test
+
+# regenerate m4a/mp4 fixtures (needs ffmpeg)
+fixtures:
+    ./tests/fixtures/make_fixtures.sh
+
+# ---------- full stack in docker ----------
+up: check-env
+    docker compose up -d
+
+build: check-env
+    docker compose up --build
+
+rebuild: check-env
+    docker compose build --no-cache
+    docker compose up
+
+down:
+    docker compose down
+
+restart:
+    docker compose restart
+
+# ---------- logs / shells ----------
+logs:
+    docker compose logs -f
+
+logs-app:
+    docker compose logs -f app
+
+logs-db:
+    docker compose logs -f postgres
+
+shell:
+    docker compose exec app bash
+
+db-shell:
+    docker compose exec postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+
+db-ready:
+    docker compose exec postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+
+# DESTRUCTIVE: removes containers, images AND the Postgres volume (all data)
+clean:
+    docker compose down -v --rmi all
+    rm -rf target/ storage/

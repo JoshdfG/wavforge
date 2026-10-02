@@ -1,0 +1,162 @@
+:root {
+  --bg: #eef2f7;
+  --panel: #fff;
+  --ink: #162033;
+  --mute: #5b6b85;
+  --line: #c9d3e3;
+  --signal: #2f5bea;
+  --signal-ink: #fff;
+  --bad: #c2342b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1522;
+    --panel: #141d2f;
+    --ink: #e8edf7;
+    --mute: #93a1ba;
+    --line: #2a3752;
+    --signal: #7c9cff;
+    --signal-ink: #0e1522;
+    --bad: #ff8a80;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.page {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 12vh 1.25rem 4rem;
+}
+h1 {
+  font-size: clamp(2.2rem, 7vw, 3.2rem);
+  letter-spacing: -0.03em;
+  margin: 0 0 0.5rem;
+}
+.lede {
+  color: var(--mute);
+  line-height: 1.5;
+  margin: 0 0 2rem;
+  max-width: 30rem;
+}
+
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  width: 100%;
+  padding: 2.5rem 1.5rem;
+  background: var(--panel);
+  color: inherit;
+  font: inherit;
+  border: 2px dashed var(--line);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.drop:hover,
+.drop.over {
+  border-color: var(--signal);
+}
+.drop:focus-visible {
+  outline: 3px solid var(--signal);
+  outline-offset: 3px;
+}
+.drop:disabled {
+  cursor: progress;
+  border-style: solid;
+  border-color: var(--signal);
+}
+.drop[data-phase="done"] {
+  border-style: solid;
+  border-color: var(--signal);
+}
+.drop[data-phase="error"] {
+  border-color: var(--bad);
+}
+
+.wave {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 84px;
+}
+.wave i {
+  display: block;
+  width: 5px;
+  border-radius: 3px;
+  background: var(--line);
+}
+.drop[data-phase="done"] .wave i,
+.drop:disabled .wave i {
+  background: var(--signal);
+}
+.drop:disabled .wave i {
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+@keyframes pulse {
+  from {
+    transform: scaleY(0.25);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drop:disabled .wave i {
+    animation: none;
+  }
+}
+
+.status {
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.drop[data-phase="error"] .status {
+  color: var(--bad);
+}
+.hint {
+  color: var(--mute);
+  font-size: 0.95rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+.primary,
+.ghost {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.8rem 1.3rem;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.primary {
+  background: var(--signal);
+  color: var(--signal-ink);
+  border: 2px solid var(--signal);
+}
+.ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 2px solid var(--line);
+}
+.primary:focus-visible,
+.ghost:focus-visible {
+  outline: 3px solid var(--signal);
+  outline-offset: 3px;
+}
